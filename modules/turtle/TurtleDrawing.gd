@@ -3,19 +3,26 @@ extends Node2D
 class_name TurtleDrawing
 
 const TurtleCls = preload("res://modules/turtle/Turtle.tscn")
+const TurtleHudCls = preload("res://modules/turtle/TurtleHud.tscn")
 var started = false
-var turtle
+var turtle: Turtle
+var turtleHud: TurtleHud
 var commandQueue := Array()
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	turtle = TurtleCls.instance()
 	add_child(turtle)
+	turtleHud = TurtleHudCls.instance()
+	turtleHud.turtle = turtle
+	add_child(turtleHud)
+	
 
 func _process(delta):
 	if (!started):
 		started = true
 		startDrawing()
+		
 		
 func startDrawing():
 	turtle.reset()

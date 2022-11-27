@@ -13,10 +13,13 @@ const DEFAULT_LINE_THICKNESS := 2.0
 const DEFAULT_COLOR := Color.white
 const TURTLE_COMMAND_COMPLETE = "command_complete"
 
+const DEFAULT_SPEED = 1.0
+const TURBO_SPEED = 10.0
+
 export var line_width = DEFAULT_LINE_THICKNESS
 export var color : Color = DEFAULT_COLOR
 
-export var draw_speed := 200.0
+export var draw_speed := 100.0
 var turn_speed_degrees := 260.0
 # Increases the animation playback speed.
 var speed_multiplier := 1.0
@@ -71,7 +74,7 @@ class TurnCommand:
 	
 	func execute(turtle: Turtle):
 		var new_rotation = turtle._pivot.rotation_degrees + _angle
-		var duration = abs(_angle / turtle.turn_speed_degrees)
+		var duration = abs(_angle / turtle.turn_speed_degrees / turtle.speed_multiplier)
 		var tw := turtle.create_tween()
 		tw.tween_property(
 			turtle._pivot,
