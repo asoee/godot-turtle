@@ -16,7 +16,7 @@ const TURTLE_COMMAND_COMPLETE = "command_complete"
 export var line_width = DEFAULT_LINE_THICKNESS
 export var color : Color = DEFAULT_COLOR
 
-export var draw_speed := 400.0
+export var draw_speed := 200.0
 var turn_speed_degrees := 260.0
 # Increases the animation playback speed.
 var speed_multiplier := 1.0
@@ -34,6 +34,13 @@ func reset():
 #		move_forward(i*4)
 #		turn(90)
 	
+# Animates the turtle's height and shadow scale when jumping. Tween the progress
+# value from 0 to 1.
+func _animate_jump(progress: float, distance: float) -> void:
+	var parabola := -pow(2.0 * progress - 1.0, 2.0) + 1.0
+	_sprite.position.y = -parabola * distance / 2
+	var shadow_scale := (1.0 - parabola + 1.0) / 2.0
+	_shadow.scale = shadow_scale * Vector2.ONE	
  
 	
 func signal_command_complete():
@@ -64,7 +71,7 @@ class TurnCommand:
 	
 	func execute(turtle: Turtle):
 		var new_rotation = turtle._pivot.rotation_degrees + _angle
-		var duration = _angle / turtle.turn_speed_degrees
+		var duration = abs(_angle / turtle.turn_speed_degrees)
 		var tw := turtle.create_tween()
 		tw.tween_property(
 			turtle._pivot,
@@ -118,5 +125,47 @@ class MoveCommand:
 			"last_point",
 			target,
 			duration).from_current()
+		yield(tw, "finished")
+		turtle.signal_command_complete()
+		
+class JumpCommand:
+	extends TurtleCommand
+	
+	var _distance
+	
+	# Class Constructor
+	func _init(distance:float = 0):
+		_distance = distance
+	
+	func execute(turtle: Turtle):
+		print("Executing: move_forward: ", _distance )
+		var move = Vector2.RIGHT * _distance
+		move = move.rotated(turtle._pivot.rotation)
+		var start_pos = turtle._pivot.position
+		var target = start_pos + move
+		target = Vector2(stepify(target.x,0.01), stepify(target.y,0.01))
+		var draw_start_delay = 0.1
+		var duration = 2 * start_pos.distance_to(target) / turtle.draw_speed / turtle.speed_multiplier
+		print("Move: ", start_pos, " + ", move, " -> ", target)
+		var tw := turtle.create_tween() \
+			.set_parallel(true) \
+			.set_ease(Tween.EASE_IN) \
+			.set_trans(Tween.TRANS_LINEAR)
+			
+		tw.tween_property(
+			turtle._pivot,
+			"position",
+			target,
+			duration
+		)
+		
+		tw.tween_method(
+			turtle,
+			"_animate_jump",
+			0.0,
+			1.0,
+			duration,
+			[_distance])
+			
 		yield(tw, "finished")
 		turtle.signal_command_complete()

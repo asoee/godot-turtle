@@ -34,7 +34,14 @@ func move_forward(distance: float):
 	var command = Turtle.MoveCommand.new(distance)
 	commandQueue.push_back(command)
 	
+func jump_forward(distance: float):
+	var command = Turtle.JumpCommand.new(distance)
+	commandQueue.push_back(command)
 	
-func turn(angle: float):
+func turn_left(angle: float):
+	var command = Turtle.TurnCommand.new(-angle)
+	commandQueue.push_back(command)
+
+func turn_right(angle: float):
 	var command = Turtle.TurnCommand.new(angle)
 	commandQueue.push_back(command)
