@@ -1,0 +1,28 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://modules/turtle/Turtle.gd" type="Script" id=1]
+[ext_resource path="res://modules/turtle/turtle.svg" type="Texture" id=2]
+[ext_resource path="res://modules/turtle/turtle.png" type="Texture" id=3]
+
+[node name="Turtle" type="Node2D"]
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_group_": true
+}
+draw_speed = 600.0
+
+[node name="Canvas" type="Node2D" parent="."]
+
+[node name="Pivot" type="Position2D" parent="."]
+scale = Vector2( 0.5, 0.5 )
+
+[node name="Shadow" type="Sprite" parent="Pivot"]
+modulate = Color( 0.0901961, 0.0941176, 0.188235, 1 )
+position = Vector2( -2, 1 )
+texture = ExtResource( 2 )
+
+[node name="Sprite" type="Sprite" parent="Pivot"]
+texture = ExtResource( 3 )
+
+[node name="Camera2D" type="Camera2D" parent="."]
+smoothing_enabled = true
