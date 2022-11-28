@@ -47,8 +47,8 @@ func _animate_jump(progress: float, distance: float) -> void:
  
 	
 func signal_command_complete():
-	emit_signal(TURTLE_COMMAND_COMPLETE)
-
+	call_deferred( "emit_signal", TURTLE_COMMAND_COMPLETE)
+	
 class AnimatedLine2D:
 	extends Line2D
 
@@ -171,4 +171,17 @@ class JumpCommand:
 			[_distance])
 			
 		yield(tw, "finished")
+		turtle.signal_command_complete()
+
+class ColorCommand:
+	extends TurtleCommand
+	
+	var _color
+	
+	# Class Constructor
+	func _init(color:Color = Color.white):
+		_color = color
+	
+	func execute(turtle: Turtle):
+		turtle.color = _color
 		turtle.signal_command_complete()

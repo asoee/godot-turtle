@@ -52,3 +52,11 @@ func turn_left(angle: float):
 func turn_right(angle: float):
 	var command = Turtle.TurnCommand.new(angle)
 	commandQueue.push_back(command)
+
+func set_color(color: Color):
+	var command = Turtle.ColorCommand.new(color)
+	commandQueue.push_back(command)
+
+func set_color_rgb(red: int, green: int, blue: int):
+	var color: Color = Color8(red, green, blue)
+	set_color(color)
