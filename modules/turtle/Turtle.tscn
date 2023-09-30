@@ -1,28 +1,25 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=4 format=3 uid="uid://c4j6n1m5st1os"]
 
-[ext_resource path="res://modules/turtle/Turtle.gd" type="Script" id=1]
-[ext_resource path="res://modules/turtle/turtle.svg" type="Texture" id=2]
-[ext_resource path="res://modules/turtle/turtle.png" type="Texture" id=3]
+[ext_resource type="Script" path="res://modules/turtle/Turtle.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://6rbin77wfjbp" path="res://modules/turtle/turtle.svg" id="2"]
+[ext_resource type="Texture2D" uid="uid://bnwppiere3c2c" path="res://modules/turtle/turtle.png" id="3"]
 
 [node name="Turtle" type="Node2D"]
-script = ExtResource( 1 )
-__meta__ = {
-"_edit_group_": true
-}
+script = ExtResource("1")
 draw_speed = 600.0
 
 [node name="Canvas" type="Node2D" parent="."]
 
-[node name="Pivot" type="Position2D" parent="."]
-scale = Vector2( 0.5, 0.5 )
+[node name="Pivot" type="Marker2D" parent="."]
+scale = Vector2(0.5, 0.5)
 
-[node name="Shadow" type="Sprite" parent="Pivot"]
-modulate = Color( 0.0901961, 0.0941176, 0.188235, 1 )
-position = Vector2( -2, 1 )
-texture = ExtResource( 2 )
+[node name="Shadow" type="Sprite2D" parent="Pivot"]
+modulate = Color(0.0901961, 0.0941176, 0.188235, 1)
+position = Vector2(-2, 1)
+texture = ExtResource("2")
 
-[node name="Sprite" type="Sprite" parent="Pivot"]
-texture = ExtResource( 3 )
+[node name="Sprite2D" type="Sprite2D" parent="Pivot"]
+texture = ExtResource("3")
 
 [node name="Camera2D" type="Camera2D" parent="."]
-smoothing_enabled = true
+position_smoothing_enabled = true

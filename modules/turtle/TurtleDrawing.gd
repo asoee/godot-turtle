@@ -11,11 +11,12 @@ var commandQueue := Array()
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	turtle = TurtleCls.instance()
+	turtle = TurtleCls.instantiate()
 	add_child(turtle)
-	turtleHud = TurtleHudCls.instance()
+	turtleHud = TurtleHudCls.instantiate()
 	turtleHud.turtle = turtle
 	add_child(turtleHud)
+	print("Ready: ", turtle)
 	
 
 func _process(delta):
@@ -25,17 +26,18 @@ func _process(delta):
 		
 		
 func startDrawing():
+	print(turtle)
 	turtle.reset()
 #	draw()
-	yield(get_tree().create_timer(1.0), "timeout")
+	await get_tree().create_timer(1.0).timeout
 	asyncDraw()
 
 		
 func asyncDraw():
-	while !commandQueue.empty():
+	while !commandQueue.is_empty():
 		var command : Turtle.TurtleCommand = commandQueue.pop_front()
 		command.execute(turtle)
-		yield(turtle, Turtle.TURTLE_COMMAND_COMPLETE)
+		await turtle.command_complete
 
 func move_forward(distance: float):
 	var command = Turtle.MoveCommand.new(distance)

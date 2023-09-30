@@ -29,35 +29,38 @@ var _command_stack := []
 # camera.
 var _temp_command_stack = []
 
-var _tween := Tween.new()
+@onready var _tween := create_tween()
 
-onready var turn_degrees = rotation_degrees
+@onready var turn_degrees = rotation_degrees
 
-onready var _pivot := $Pivot as Node2D
-onready var _sprite := $Pivot/Sprite as Sprite
-onready var _shadow := $Pivot/Shadow as Sprite
-onready var _canvas := $Canvas as Node2D
-onready var _camera := $Camera2D as Camera2D
+@onready var _pivot := $Pivot as Node2D
+@onready var _sprite := $Pivot/Sprite2D as Sprite2D
+@onready var _shadow := $Pivot/Shadow as Sprite2D
+@onready var _canvas := $Canvas as Node2D
+@onready var _camera := $Camera2D as Camera2D
 
 
 func _ready() -> void:
-	add_child(_tween)
+	main()
 	# Allows to have a camera follow the turtle when using it in practices,
 	# inside the GDQuestBoy.
-	if get_parent() is Viewport:
-		_camera.set_as_toplevel(true)
+	if get_parent() is SubViewport:
+		_camera.set_as_top_level(true)
 		_camera.position = global_position
 		_camera.make_current()
-
+	
+		
+func main():
+	print("turtle main")
 
 # Virtually moves the turtle and records a new vertex.
 func move_forward(distance: float) -> void:
 	var previous_point := Vector2.ZERO
-	if _points.empty():
+	if _points.is_empty():
 		_points.append(previous_point)
 	else:
 		previous_point = _points[-1]
-	var new_point := previous_point + Vector2.RIGHT.rotated(deg2rad(turn_degrees)) * distance
+	var new_point := previous_point + Vector2.RIGHT.rotated(deg_to_rad(turn_degrees)) * distance
 	new_point = new_point.snapped(Vector2.ONE)
 	_points.append(new_point)
 
@@ -79,7 +82,9 @@ func turn_left(angle_degrees: float) -> void:
 # Completes the current polygon's drawing and virtually jumps the turtle to a
 # new start position.
 func jump(x: float, y: float) -> void:
-	var last_point := Vector2.ZERO if _points.empty() else _points[-1]
+	var last_point = Vector2.ZERO 
+	if not _points.is_empty():
+		last_point = _points[-1]
 	_close_polygon()
 	_points.append(Vector2.ZERO)
 	_current_offset += Vector2(x, y) + last_point
@@ -232,7 +237,7 @@ func _animate_jump(progress: float) -> void:
 
 
 func _close_polygon() -> void:
-	if _points.empty():
+	if _points.is_empty():
 		return
 
 	var polygon := Polygon.new()
@@ -240,7 +245,7 @@ func _close_polygon() -> void:
 	# position property. It works differently from jump() which offsets the
 	# turtle from its position.
 	polygon.position = position + _current_offset
-	polygon.points = PoolVector2Array(_points)
+	polygon.points = PackedVector2Array(_points)
 	_polygons.append(polygon)
 	_points.clear()
 
@@ -262,7 +267,7 @@ func _move_camera(target_global_position: Vector2) -> void:
 class Polygon:
 	extends Node2D
 
-	var points := PoolVector2Array() setget , get_points
+	var points := PackedVector2Array(): get = get_points
 
 	# Returns the local bounds of the polygon. That is to say, it only takes the
 	# point into account in local space, but not the polygon's `position`.
@@ -294,19 +299,18 @@ class Polygon:
 		var rect := get_rect()
 		return (rect.position + rect.end) / 2.0 + global_position
 
-	func get_points() -> PoolVector2Array:
+	func get_points() -> PackedVector2Array:
 		return points
 
 	func is_empty():
-		return points.empty() or points == PoolVector2Array([Vector2.ZERO])
+		return points.is_empty() or points == PackedVector2Array([Vector2.ZERO])
 
 
 class DrawingLine2D:
 	extends Line2D
 
-	const LabelScene := preload("DrawingTurtleLabel.tscn")
 	const LINE_THICKNESS := 4.0
-	const DEFAULT_COLOR := Color.white
+	const DEFAULT_COLOR := Color.WHITE
 
 	var _tween := Tween.new()
 
@@ -315,7 +319,7 @@ class DrawingLine2D:
 
 		width = LINE_THICKNESS
 		default_color = DEFAULT_COLOR
-		points = PoolVector2Array([start, start])
+		points = PackedVector2Array([start, start])
 
 		# _tween.interpolate_callback(self, start_time, "_spawn_label")
 		_tween.interpolate_method(
@@ -338,7 +342,3 @@ class DrawingLine2D:
 	func _animate_drawing(point: Vector2) -> void:
 		points[-1] = point
 
-	func _spawn_label() -> void:
-		var label := LabelScene.instance() as PanelContainer
-		label.rect_position = points[0] - label.rect_size / 2
-		add_child(label)

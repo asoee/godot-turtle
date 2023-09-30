@@ -3,11 +3,11 @@ class_name TurtleHud
 
 var turtle: Turtle
 
-onready var posLabel = $Position
+@onready var posLabel = $Position
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	 pause_mode = Node.PAUSE_MODE_PROCESS
+	process_mode = Node.PROCESS_MODE_ALWAYS
 
 func _process(delta):
 	updateUi()

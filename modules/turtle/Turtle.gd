@@ -1,25 +1,25 @@
 class_name Turtle
 extends Node2D
 
-onready var _pivot := $Pivot as Node2D
-onready var _sprite := $Pivot/Sprite as Sprite
-onready var _shadow := $Pivot/Shadow as Sprite
-onready var _canvas := $Canvas as Node2D
-onready var _camera := $Camera2D as Camera2D
+@onready var _pivot := $Pivot as Node2D
+@onready var _sprite := $Pivot/Sprite2D as Sprite2D
+@onready var _shadow := $Pivot/Shadow as Sprite2D
+@onready var _canvas := $Canvas as Node2D
+@onready var _camera := $Camera2D as Camera2D
 
-onready var screen_size = get_viewport_rect().size
+@onready var screen_size = get_viewport_rect().size
 
 const DEFAULT_LINE_THICKNESS := 2.0
-const DEFAULT_COLOR := Color.white
+const DEFAULT_COLOR := Color.WHITE
 const TURTLE_COMMAND_COMPLETE = "command_complete"
 
 const DEFAULT_SPEED = 1.0
 const TURBO_SPEED = 10.0
 
-export var line_width = DEFAULT_LINE_THICKNESS
-export var color : Color = DEFAULT_COLOR
+@export var line_width = DEFAULT_LINE_THICKNESS
+@export var color : Color = DEFAULT_COLOR
 
-export var draw_speed := 100.0
+@export var draw_speed := 100.0
 var turn_speed_degrees := 260.0
 # Increases the animation playback speed.
 var speed_multiplier := 1.0
@@ -52,7 +52,7 @@ func signal_command_complete():
 class AnimatedLine2D:
 	extends Line2D
 
-	var last_point setget set_last_point, get_last_point
+	var last_point : get = get_last_point, set = set_last_point
 	func set_last_point(pos : Vector2):
 		points[-1] = pos
 	func get_last_point():
@@ -60,7 +60,7 @@ class AnimatedLine2D:
 
 class TurtleCommand:
 	
-	func execute(turtle: Turtle):
+	func execute(_turtle: Turtle):
 		pass
 
 class TurnCommand:
@@ -82,7 +82,7 @@ class TurnCommand:
 			new_rotation,
 			duration
 		)
-		yield(tw, "finished")	
+		await tw.finished	
 		turtle.signal_command_complete()
 	
 class MoveCommand:
@@ -100,7 +100,7 @@ class MoveCommand:
 		move = move.rotated(turtle._pivot.rotation)
 		var start_pos = turtle._pivot.position
 		var target = start_pos + move
-		target = Vector2(stepify(target.x,0.01), stepify(target.y,0.01))
+		target = Vector2(snapped(target.x,0.01), snapped(target.y,0.01))
 		var draw_start_delay = 0.1
 		var duration = start_pos.distance_to(target) / turtle.draw_speed / turtle.speed_multiplier
 		print("Move: ", start_pos, " + ", move, " -> ", target)
@@ -128,7 +128,7 @@ class MoveCommand:
 			"last_point",
 			target,
 			duration).from_current()
-		yield(tw, "finished")
+		await tw.finished
 		turtle.signal_command_complete()
 		
 class JumpCommand:
@@ -146,7 +146,7 @@ class JumpCommand:
 		move = move.rotated(turtle._pivot.rotation)
 		var start_pos = turtle._pivot.position
 		var target = start_pos + move
-		target = Vector2(stepify(target.x,0.01), stepify(target.y,0.01))
+		target = Vector2(snapped(target.x,0.01), snapped(target.y,0.01))
 		var draw_start_delay = 0.1
 		var duration = 2 * start_pos.distance_to(target) / turtle.draw_speed / turtle.speed_multiplier
 		print("Move: ", start_pos, " + ", move, " -> ", target)
@@ -163,14 +163,12 @@ class JumpCommand:
 		)
 		
 		tw.tween_method(
-			turtle,
-			"_animate_jump",
+			turtle._animate_jump,
 			0.0,
 			1.0,
-			duration,
-			[_distance])
+			duration)
 			
-		yield(tw, "finished")
+		await tw.finished
 		turtle.signal_command_complete()
 
 class ColorCommand:
@@ -179,7 +177,7 @@ class ColorCommand:
 	var _color
 	
 	# Class Constructor
-	func _init(color:Color = Color.white):
+	func _init(color:Color = Color.WHITE):
 		_color = color
 	
 	func execute(turtle: Turtle):

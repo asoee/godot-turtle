@@ -12,12 +12,12 @@ You can simply download this project, and import it into Godot. This will provid
 
 The `Main` script will have a simple `_ready()` function that draws a square.
 
-    extends TurtleDrawing
+	extends TurtleDrawing
 
-    func _ready():
-        for i in 4:
-            move_forward(100)
-            turn_left(90)
+	func _ready():
+		for i in 4:
+			move_forward(100)
+			turn_left(90)
 
 ## Commands
 
