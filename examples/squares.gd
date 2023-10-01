@@ -1,5 +1,4 @@
-extends TurtleDrawing
-
+extends Turtle
 
 func _main():
 	colored_squares()

@@ -1,7 +1,7 @@
 extends CanvasLayer
 class_name TurtleHud
 
-var turtle: Turtle
+var drawing: Drawing
 
 @onready var posLabel = $Position
 
@@ -14,7 +14,7 @@ func _process(delta):
 	handleInput()
 	
 func updateUi():
-	var posText := "Pos: x=%d,y=%d" % [turtle._pivot.position.x, turtle._pivot.position.y]
+	var posText := "Pos: x=%d,y=%d" % [drawing._pivot.position.x, drawing._pivot.position.y]
 	posLabel.text = posText
 	
 func handleInput():
@@ -26,10 +26,10 @@ func handleInput():
 		toggleTurbo()
 			
 func toggleTurbo():
-	if (turtle.speed_multiplier == Turtle.DEFAULT_SPEED):
-		turtle.speed_multiplier = Turtle.TURBO_SPEED
+	if (drawing.speed_multiplier == Drawing.DEFAULT_SPEED):
+		drawing.speed_multiplier = Drawing.TURBO_SPEED
 	else:
-		turtle.speed_multiplier = Turtle.DEFAULT_SPEED
+		drawing.speed_multiplier = Drawing.DEFAULT_SPEED
 
 func togglePause():
 	get_tree().paused = !get_tree().paused					

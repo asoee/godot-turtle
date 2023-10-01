@@ -1,223 +1,116 @@
 class_name Turtle
 extends Node2D
 
-@onready var _pivot := $Pivot as Node2D
-@onready var _sprite := $Pivot/Sprite2D as Sprite2D
-@onready var _shadow := $Pivot/Shadow as Sprite2D
-@onready var _canvas := $Canvas as Node2D
-@onready var _camera := $Camera2D as Camera2D
+signal queue_complete
 
-@onready var screen_size = get_viewport_rect().size
+const DRAWING_PREFAB = preload("res://addons/turtle/drawing.tscn")
+const HUD_PREFAB = preload("res://addons/turtle/turtle_hud.tscn")
 
-const DEFAULT_LINE_THICKNESS := 2.0
-const DEFAULT_COLOR := Color.WHITE
-const TURTLE_COMMAND_COMPLETE = "command_complete"
+var started = false
+var drawing: Drawing
+var turtleHud: TurtleHud
+var commandQueue := Array()
+var mutex: Mutex
+var semaphore: Semaphore
 
-const DEFAULT_SPEED = 1.0
-const TURBO_SPEED = 10.0
+const NORTH = 0
 
-@export var line_width = DEFAULT_LINE_THICKNESS
-@export var color : Color = DEFAULT_COLOR
-
-@export var draw_speed := 100.0
-var turn_speed_degrees := 260.0
-# Increases the animation playback speed.
-var speed_multiplier := 1.0
-
-
-signal command_complete
-
-
-func reset():
-	_pivot.position = screen_size / 2
-	_pivot.rotation = -PI/2
-
-#func draw():
-#	for i in 50:
-#		move_forward(i*4)
-#		turn(90)
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	drawing = DRAWING_PREFAB.instantiate()
+	add_child(drawing)
+	turtleHud = HUD_PREFAB.instantiate()
+	turtleHud.drawing = drawing
+	add_child(turtleHud)
 	
-# Animates the turtle's height and shadow scale when jumping. Tween the progress
-# value from 0 to 1.
-func _animate_jump(progress: float, distance: float) -> void:
-	var parabola := -pow(2.0 * progress - 1.0, 2.0) + 1.0
-	_sprite.position.y = -parabola * distance / 2
-	var shadow_scale := (1.0 - parabola + 1.0) / 2.0
-	_shadow.scale = shadow_scale * Vector2.ONE	
- 
+	mutex = Mutex.new()
+	semaphore = Semaphore.new()
+	var thread = Thread.new()
+	thread.start(_main)
+	queue_complete.connect(_on_queue_complete)
 	
-func signal_command_complete():
-	call_deferred( "emit_signal", TURTLE_COMMAND_COMPLETE)
+func _main():
+	pass
 	
-class AnimatedLine2D:
-	extends Line2D
+	
+func forward(distance: float):
+	_queue_forward(distance)
+	semaphore.wait()
 
-	var last_point : get = get_last_point, set = set_last_point
-	func set_last_point(pos : Vector2):
-		points[-1] = pos
-	func get_last_point():
-		return points[-1]
+func back(distance: float):
+	_queue_forward(-distance)
+	semaphore.wait()
 
-class TurtleCommand:
-	
-	func execute(_turtle: Turtle):
-		pass
+func left(angle: float):
+	_queue_left(angle)
+	semaphore.wait()
 
-class TurnCommand:
-	extends TurtleCommand
-	
-	var _angle
-	
-	# Class Constructor
-	func _init(angle:float = 0.0):
-		_angle = angle
-	
-	func execute(turtle: Turtle):
-		print("Executing: turn: ", _angle )
-		var new_rotation = turtle._pivot.rotation_degrees + _angle
-		var duration = abs(_angle / turtle.turn_speed_degrees / turtle.speed_multiplier)
-		var tw := turtle.create_tween()
-		tw.tween_property(
-			turtle._pivot,
-			"rotation_degrees",
-			new_rotation,
-			duration
-		)
-		await tw.finished	
-		turtle.signal_command_complete()
+func right(angle: float):
+	_queue_right(angle)
+	semaphore.wait()
 
-class TurnToCommand:
-	extends TurtleCommand
-	
-	var _angle
-	
-	# Class Constructor
-	func _init(angle:float = 0.0):
-		_angle = angle
-	
-	func execute(turtle: Turtle):
-		print("Executing: turn to: ", _angle )
-		var new_rotation = _angle
-		var duration = abs(turtle._pivot.rotation_degrees - _angle / turtle.turn_speed_degrees / turtle.speed_multiplier)
-		var tw := turtle.create_tween()
-		tw.tween_property(
-			turtle._pivot,
-			"rotation_degrees",
-			new_rotation,
-			duration
-		)
-		await tw.finished	
-		turtle.signal_command_complete()
+func jump(distance: float):
+	_queue_jump(distance)
+	semaphore.wait()
 
+func set_color(color: Color):
+	_queue_set_color(color)
+	semaphore.wait()
+
+func set_width(width: float):
+	_queue_set_width(width)
+	semaphore.wait()
+
+func turn_to(angle: float):
+	_queue_turn_to(angle)
+	semaphore.wait()
 	
-class MoveCommand:
-	extends TurtleCommand
-	
-	var _distance
-	
-	# Class Constructor
-	func _init(distance:float = 0):
-		_distance = distance
-	
-	func execute(turtle: Turtle):
-		print("Executing: move_forward: ", _distance )
-		var move = Vector2.RIGHT * _distance
-		move = move.rotated(turtle._pivot.rotation)
-		var start_pos = turtle._pivot.position
-		var target = start_pos + move
-		target = Vector2(snapped(target.x,0.01), snapped(target.y,0.01))
-		var draw_start_delay = 0.1
-		var duration = start_pos.distance_to(target) / turtle.draw_speed / turtle.speed_multiplier
-		print("Move: ", start_pos, " + ", move, " -> ", target)
-		var tw := turtle.create_tween() \
-			.set_ease(Tween.EASE_IN) \
-			.set_trans(Tween.TRANS_LINEAR)
-			
-		tw.tween_property(
-			turtle._pivot,
-			"position",
-			target,
-			duration
-		)
+func _on_queue_complete():
+	semaphore.post()
+
+func _process(delta):
+	if !started:
+		started = true
+	_asyncDraw()
 		
-		var line = AnimatedLine2D.new()
-		line.width = turtle.line_width
-		line.default_color = turtle.color
 		
-		line.add_point(start_pos)
-		line.add_point(start_pos)
-		turtle._canvas.add_child(line)
-
-		tw.parallel().tween_property(
-			line,
-			"last_point",
-			target,
-			duration).from_current()
-		await tw.finished
-		turtle.signal_command_complete()
+func _asyncDraw():
+	if !commandQueue.is_empty():
+		while !commandQueue.is_empty():
+			var command : Drawing.TurtleCommand = commandQueue.pop_front()
+			command.execute(drawing)
+			await drawing.command_complete
+		queue_complete.emit()
 		
-class JumpCommand:
-	extends TurtleCommand
-	
-	var _distance
-	
-	# Class Constructor
-	func _init(distance:float = 0):
-		_distance = distance
-	
-	func execute(turtle: Turtle):
-		print("Executing: move_forward: ", _distance )
-		var move = Vector2.RIGHT * _distance
-		move = move.rotated(turtle._pivot.rotation)
-		var start_pos = turtle._pivot.position
-		var target = start_pos + move
-		target = Vector2(snapped(target.x,0.01), snapped(target.y,0.01))
-		var draw_start_delay = 0.1
-		var duration = 2 * start_pos.distance_to(target) / turtle.draw_speed / turtle.speed_multiplier
-		print("Move: ", start_pos, " + ", move, " -> ", target)
-		var tw := turtle.create_tween() \
-			.set_parallel(true) \
-			.set_ease(Tween.EASE_IN) \
-			.set_trans(Tween.TRANS_LINEAR)
-			
-		tw.tween_property(
-			turtle._pivot,
-			"position",
-			target,
-			duration
-		)
-		
-		tw.tween_method(
-			turtle._animate_jump,
-			0.0,
-			1.0,
-			duration)
-			
-		await tw.finished
-		turtle.signal_command_complete()
 
-class ColorCommand:
-	extends TurtleCommand
+func _queue_forward(distance: float):
+	var command = Drawing.MoveCommand.new(distance)
+	commandQueue.push_back(command)
 	
-	var _color
+func _queue_jump(distance: float):
+	var command = Drawing.JumpCommand.new(distance)
+	commandQueue.push_back(command)
 	
-	# Class Constructor
-	func _init(color:Color = Color.WHITE):
-		_color = color
-	
-	func execute(turtle: Turtle):
-		turtle.color = _color
-		turtle.signal_command_complete()
+func _queue_left(angle: float):
+	var command = Drawing.TurnCommand.new(-angle)
+	commandQueue.push_back(command)
 
-class WidthCommand:
-	extends TurtleCommand
-	
-	var _width
-	
-	# Class Constructor
-	func _init(width:float = 4):
-		_width = width
-	
-	func execute(turtle: Turtle):
-		turtle.line_width = _width
-		turtle.signal_command_complete()
+func _queue_turn_to(angle: float):
+	var command = Drawing.TurnToCommand.new(angle)
+	commandQueue.push_back(command)
+
+func _queue_right(angle: float):
+	var command = Drawing.TurnCommand.new(angle)
+	commandQueue.push_back(command)
+
+func _queue_set_color(color: Color):
+	var command = Drawing.ColorCommand.new(color)
+	commandQueue.push_back(command)
+
+func _queue_set_width(width: float):
+	var command = Drawing.WidthCommand.new(width)
+	commandQueue.push_back(command)
+
+func rgb_color(red: int, green: int, blue: int) -> Color:
+	var color: Color = Color8(red, green, blue)
+	return color

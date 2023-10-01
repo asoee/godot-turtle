@@ -1,0 +1,24 @@
+[gd_scene load_steps=4 format=3 uid="uid://c4j6n1m5st1os"]
+
+[ext_resource type="Script" path="res://addons/turtle/drawing.gd" id="1_3vo7x"]
+[ext_resource type="Texture2D" uid="uid://6rbin77wfjbp" path="res://addons/turtle/icons/turtle.svg" id="2_l7goi"]
+[ext_resource type="Texture2D" uid="uid://bnwppiere3c2c" path="res://addons/turtle/icons/turtle.png" id="3_nvyjg"]
+
+[node name="Drawing" type="Node2D"]
+script = ExtResource("1_3vo7x")
+
+[node name="Canvas" type="Node2D" parent="."]
+
+[node name="Pivot" type="Marker2D" parent="."]
+scale = Vector2(0.5, 0.5)
+
+[node name="Shadow" type="Sprite2D" parent="Pivot"]
+modulate = Color(0.0901961, 0.0941176, 0.188235, 1)
+position = Vector2(-2, 1)
+texture = ExtResource("2_l7goi")
+
+[node name="Sprite2D" type="Sprite2D" parent="Pivot"]
+texture = ExtResource("3_nvyjg")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position_smoothing_enabled = true

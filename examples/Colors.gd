@@ -1,4 +1,4 @@
-extends TurtleDrawing
+extends Turtle
 
 func _main():
 	for i in 20:
