@@ -1,0 +1,35 @@
+[gd_scene load_steps=6 format=3 uid="uid://c2m1ckkgml5em"]
+
+[ext_resource type="Script" path="res://addons/turtle/turtle_hud.gd" id="1_vet4v"]
+[ext_resource type="FontFile" uid="uid://pjsm4yhg1rvx" path="res://addons/turtle/SourceCodePro-Regular.ttf" id="2_54pnq"]
+
+[sub_resource type="FontFile" id="2"]
+fallbacks = Array[Font]([ExtResource("2_54pnq")])
+cache/0/16/0/ascent = 0.0
+cache/0/16/0/descent = 0.0
+cache/0/16/0/underline_position = 0.0
+cache/0/16/0/underline_thickness = 0.0
+cache/0/16/0/scale = 1.0
+cache/0/16/0/kerning_overrides/16/0 = Vector2(0, 0)
+
+[sub_resource type="Theme" id="1"]
+default_font = SubResource("2")
+
+[sub_resource type="FontFile" id="3"]
+fallbacks = Array[Font]([ExtResource("2_54pnq")])
+cache/0/16/0/ascent = 0.0
+cache/0/16/0/descent = 0.0
+cache/0/16/0/underline_position = 0.0
+cache/0/16/0/underline_thickness = 0.0
+cache/0/16/0/scale = 1.0
+cache/0/16/0/kerning_overrides/16/0 = Vector2(0, 0)
+
+[node name="TurtleHud" type="CanvasLayer"]
+script = ExtResource("1_vet4v")
+
+[node name="Position" type="Label" parent="."]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 31.0
+theme = SubResource("1")
+theme_override_fonts/font = SubResource("3")

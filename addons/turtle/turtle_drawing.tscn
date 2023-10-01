@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c2oaityq2bs06"]
+
+[ext_resource type="Script" path="res://addons/turtle/turtle_drawing.gd" id="1_v578r"]
+
+[node name="TurtleDrawing" type="Node2D"]
+script = ExtResource("1_v578r")
