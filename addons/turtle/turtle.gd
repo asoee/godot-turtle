@@ -1,3 +1,4 @@
+@icon("res://addons/turtle/icon32.png")
 class_name Turtle
 extends Node2D
 
@@ -18,10 +19,10 @@ const NORTH = 0
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	drawing = DRAWING_PREFAB.instantiate()
-	add_child(drawing)
+	add_child.call_deferred(drawing)
 	turtleHud = HUD_PREFAB.instantiate()
 	turtleHud.drawing = drawing
-	add_child(turtleHud)
+	add_child.call_deferred(turtleHud)
 	
 	mutex = Mutex.new()
 	semaphore = Semaphore.new()

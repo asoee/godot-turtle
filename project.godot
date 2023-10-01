@@ -20,15 +20,6 @@ config/icon="res://icon.png"
 window/size/mode=2
 window/stretch/mode="viewport"
 
-[editor]
-
-version_control/plugin_name="GitPlugin"
-version_control/autoload_on_startup=true
-
-[editor_plugins]
-
-enabled=PackedStringArray("res://addons/turtle/plugin.cfg")
-
 [gui]
 
 common/drop_mouse_on_gui_input_disabled=true
