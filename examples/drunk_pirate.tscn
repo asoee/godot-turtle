@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://n5m7cj42dlbm"]
+
+[ext_resource type="Script" path="res://examples/drunk_pirate.gd" id="1_6qy8r"]
+
+[node name="drunk_pirate" type="Node2D"]
+script = ExtResource("1_6qy8r")
