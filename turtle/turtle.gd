@@ -1,11 +1,11 @@
-@icon("res://addons/turtle/icon32.png")
+@icon("res://turtle/icon32.png")
 class_name Turtle
 extends Node2D
 
 signal queue_complete
 
-const DRAWING_PREFAB = preload("res://addons/turtle/drawing.tscn")
-const HUD_PREFAB = preload("res://addons/turtle/turtle_hud.tscn")
+const DRAWING_PREFAB = preload("res://turtle/drawing.tscn")
+const HUD_PREFAB = preload("res://turtle/turtle_hud.tscn")
 
 var started = false
 var drawing: Drawing

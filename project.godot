@@ -22,7 +22,7 @@ window/stretch/mode="viewport"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/turtle/plugin.cfg")
+enabled=PackedStringArray()
 
 [gui]
 

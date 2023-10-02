@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://7idnvwdln4f"
-path="res://.godot/imported/shadow.svg-6b6198359d797aa8a16b25ea892fa63e.ctex"
+path="res://.godot/imported/shadow.svg-90bdb860f2eea9d328a54599fc3bf52b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/turtle/shadow.svg"
-dest_files=["res://.godot/imported/shadow.svg-6b6198359d797aa8a16b25ea892fa63e.ctex"]
+source_file="res://turtle/shadow.svg"
+dest_files=["res://.godot/imported/shadow.svg-90bdb860f2eea9d328a54599fc3bf52b.ctex"]
 
 [params]
 
